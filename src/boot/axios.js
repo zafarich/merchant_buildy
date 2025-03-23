@@ -13,7 +13,6 @@ export default boot(({ app }) => {
     (config) => {
       const token = getTokenFromCache()
       if (token) config.headers.Authorization = 'Bearer ' + token
-      config.headers.accept = 'application/json'
 
       return config
     },

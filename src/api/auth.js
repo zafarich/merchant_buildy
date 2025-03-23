@@ -1,5 +1,4 @@
 import { api } from 'src/boot/axios'
-const auth = 'api/v1/login'
 
 export async function login(payload) {
   const res = await api.post('api/v1/login', payload, {
@@ -8,13 +7,13 @@ export async function login(payload) {
   return res
 }
 export async function logOut() {
-  const res = await api.post(auth + '/logout', {
+  const res = await api.post('api/v1/logout', {
     pass: true,
   })
   return res
 }
 export async function me() {
-  const { data } = await api.post(auth + '/user', {
+  const { data } = await api.post('api/v1/me', {
     pass: true,
   })
   return data

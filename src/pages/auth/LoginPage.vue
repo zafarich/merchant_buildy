@@ -38,7 +38,7 @@ const onLoginFormSubmit = async () => {
     const loginResult = await authStore.login(payload)
 
     if (loginResult?.success) {
-      router.push({ name: 'dashboard.page' })
+      router.push({ name: 'dashboard' })
     }
   } catch (error) {
     $q.notify({

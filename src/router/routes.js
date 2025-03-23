@@ -5,7 +5,7 @@ const routes = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    // meta: { middlewares: [AuthMiddleware] },
+    meta: { middlewares: [AuthMiddleware] },
 
     children: [
       {
@@ -24,9 +24,19 @@ const routes = [
         component: () => import('pages/categories/IndexPage.vue'),
       },
       {
+        path: 'admins',
+        name: 'admins',
+        component: () => import('pages/users/admins/IndexPage.vue'),
+      },
+      {
+        path: 'managers',
+        name: 'managers',
+        component: () => import('pages/users/managers/IndexPage.vue'),
+      },
+      {
         path: 'employees',
         name: 'employees',
-        component: () => import('pages/employees/IndexPage.vue'),
+        component: () => import('pages/users/employees/IndexPage.vue'),
       },
       {
         path: 'contracts',

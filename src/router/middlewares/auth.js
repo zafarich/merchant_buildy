@@ -4,7 +4,7 @@ export default async function auth({ next, to }) {
 
   if (authStore.isAuth) {
     if (to.name === 'login') {
-      return next({ name: 'dashboard.page' })
+      return next({ name: 'dashboard' })
     }
     return next()
   }

@@ -1,34 +1,40 @@
 import { api } from 'src/boot/axios'
-const url = 'api/admin/users'
 
-export async function fetch(params) {
-  const { data } = await api(url, { params })
+const urls = {
+  admins: '/api/v1/admins',
+  managers: '/api/v1/managers',
+  planners: 'api/admin/planners',
+  employees: 'api/admin/employees',
+}
+
+export async function fetch(params, user_type) {
+  const { data } = await api(urls?.[user_type], { params })
   return data
 }
 
-export async function create(payload) {
-  const res = await api.post(url, payload, {
+export async function create(payload, user_type) {
+  const res = await api.post(urls?.[user_type], payload, {
     pass: true,
   })
   return res
 }
 
-export async function update(id, payload) {
-  const res = await api.post(`${url}/${id}`, payload, {
+export async function update(id, payload, user_type) {
+  const res = await api.post(`${urls?.[user_type]}/${id}`, payload, {
     pass: true,
   })
   return res
 }
 
-export async function getById(id) {
-  const { data } = await api(`${url}/${id}`)
+export async function getById(id, user_type) {
+  const { data } = await api(`${urls?.[user_type]}/${id}`)
   return data
 }
-export async function deleteById(id) {
-  const res = await api.delete(`${url}/${id}`)
+export async function deleteById(id, user_type) {
+  const res = await api.delete(`${urls?.[user_type]}/${id}`)
   return res
 }
-export async function changeBlockStatus(id, payload) {
-  const res = await api.post(`${url}/toggleUserBlock/${id}`, payload)
+export async function changeBlockStatus(id, payload, user_type) {
+  const res = await api.post(`${urls?.[user_type]}/toggleUserBlock/${id}`, payload)
   return res
 }
