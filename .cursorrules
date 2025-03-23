@@ -1,0 +1,27 @@
+# Asosiy komponentlar
+src/components/base/* -> src/pages/**/*
+src/components/base/* -> src/components/**/*
+
+# Jadval komponentlari
+src/components/table/* -> src/pages/**/*
+src/components/table/* -> src/components/**/*
+
+# Ma'lumotlar oqimi
+src/pages/**/* -> src/stores/**/*
+src/stores/**/* -> src/api/**/*
+
+# Yordamchi funksiyalar va validatsiya
+src/utils/* -> src/pages/**/*
+src/utils/* -> src/components/**/*
+src/utils/* -> src/stores/**/*
+
+# Sahifa strukturasi
+src/pages/employees/IndexPage.vue -> src/pages/employees/modules/*
+src/pages/employees/IndexPage.vue -> src/pages/employees/table-cells/*
+
+# Table cell komponentlari
+src/pages/employees/table-cells/* -> src/components/base/*
+
+# Modal va form komponentlari
+src/pages/employees/modules/* -> src/components/base/*
+src/pages/employees/modules/* -> src/utils/*

@@ -1,102 +1,117 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header bordered class="bg-white text-black">
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-toolbar-title></q-toolbar-title>
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+        <q-btn-dropdown flat no-caps class="profile-dropdown" color="primary">
+          <template v-slot:label>
+            <div class="flex items-center">
+              <q-avatar size="32px" color="primary" text-color="white">
+                {{ userInitials }}
+              </q-avatar>
+              <span class="q-ml-sm text-weight-medium">{{ userName }}</span>
+            </div>
+          </template>
 
-        <div>Quasar v{{ $q.version }}</div>
+          <q-list>
+            <q-item clickable v-close-popup @click="handleLogout">
+              <q-item-section avatar>
+                <q-icon name="logout" />
+              </q-item-section>
+              <q-item-section>Chiqish</q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+      <q-toolbar-title class="text-center py-5 font-bold text-primary">Buildy</q-toolbar-title>
 
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+      <q-list padding class="menu-list px-4">
+        <q-item class="flex items-center" clickable v-ripple :to="{ name: 'dashboard' }" exact>
+          <q-icon class="mr-3" size="22px" name="o_home" />
+          <q-item-section>Bosh sahifa</q-item-section>
+        </q-item>
+
+        <q-item class="flex items-center" clickable v-ripple :to="{ name: 'finance' }" exact>
+          <q-icon class="mr-3" size="22px" name="o_payments" />
+          <q-item-section>Xarajat va kirim</q-item-section>
+        </q-item>
+
+        <q-item class="flex items-center" clickable v-ripple :to="{ name: 'categories' }" exact>
+          <q-icon class="mr-3" size="22px" name="o_category" />
+          <q-item-section>Kategoriyalar</q-item-section>
+        </q-item>
+
+        <q-item class="flex items-center" clickable v-ripple :to="{ name: 'employees' }" exact>
+          <q-icon class="mr-3" size="22px" name="o_people" />
+          <q-item-section>Xodimlar</q-item-section>
+        </q-item>
+
+        <q-item class="flex items-center" clickable v-ripple :to="{ name: 'contracts' }" exact>
+          <q-icon class="mr-3" size="22px" name="o_description" />
+          <q-item-section>Shartnomalar</q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <div class="px-3 py-4 768:px-6 768:py-8"><router-view /></div>
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
-
+const router = useRouter()
 const leftDrawerOpen = ref(false)
+const userName = ref('Zafar Yusupov') // Bu yerda login qilingan foydalanuvchi ismini olish kerak
 
-function toggleLeftDrawer () {
+const userInitials = computed(() => {
+  return userName.value
+    .split(' ')
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+})
+
+function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
+
+function handleLogout() {
+  // Bu yerda logout logikasini yozish kerak
+  router.push('/login')
+}
 </script>
+
+<style lang="scss">
+.menu-list .q-item {
+  transition: background-color 0.2s;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.menu-list .q-item:hover {
+  background-color: #fcfeff;
+}
+
+.menu-list .q-item.q-router-link--active {
+  background-color: #e4e9ff;
+  color: var(--q-primary);
+  font-weight: 500;
+}
+.menu-lis .q-item__section--avatar {
+  width: auto !important;
+}
+.profile-dropdown {
+  .q-btn-dropdown__arrow {
+    margin-left: 8px;
+  }
+}
+</style>

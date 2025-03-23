@@ -1,24 +1,67 @@
-import { defineBoot } from '#q-app/wrappers'
+import { boot } from 'quasar/wrappers'
 import axios from 'axios'
+import { getTokenFromCache } from 'src/utils/auth'
+import { Notify, LocalStorage } from 'quasar'
+import { getServerError } from 'src/utils/helpers'
+import { useAuthStore } from 'src/stores/auth'
+const api = axios.create({ baseURL: process.env.BASE_URL })
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' })
+export default boot(({ app }) => {
+  const authStore = useAuthStore()
 
-export default defineBoot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
+  api.interceptors.request.use(
+    (config) => {
+      const token = getTokenFromCache()
+      if (token) config.headers.Authorization = 'Bearer ' + token
+      config.headers.accept = 'application/json'
 
-  app.config.globalProperties.$axios = axios
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
+      return config
+    },
+    (error) => Promise.reject(error),
+  )
 
-  app.config.globalProperties.$api = api
-  // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-  //       so you can easily perform requests against your app's API
+  api.interceptors.response.use(
+    (response) => {
+      return response?.data
+    },
+    async (error) => {
+      let message = getServerError(error, 'message')
+      const status = error?.response?.status
+      console.log('error', error)
+      if ('pass' in error?.config) {
+        return Promise.reject(error)
+      }
+
+      if (status === 401) {
+        authStore.removeToken()
+        return { data: { result: null, error: true } }
+      } else if (status?.toString()?.slice(0, 1) === 5) {
+        message = 'Internal Server Error'
+      } else if (status === 405) {
+        message = 'Method Not Allowed'
+      } else if (status === 404) {
+        message = 'Not Found'
+      } else if (status === 403) {
+        message = `Sizda ruxsat yo'q`
+      } else {
+        message = message ?? `Error 500. Noma'lum xatolik yuz berdi!`
+      }
+
+      if (message) {
+        Notify.create({
+          progress: true,
+          position: 'top',
+          message,
+          type: 'info',
+          color: 'negative',
+          timeout: 4000,
+        })
+      }
+      return { data: { result: null, error: true } }
+    },
+  )
+
+  return { api }
 })
 
 export { api }

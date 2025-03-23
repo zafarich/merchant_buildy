@@ -1,6 +1,12 @@
-import { defineRouter } from '#q-app/wrappers'
-import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
+import { route } from 'quasar/wrappers'
+import {
+  createRouter,
+  createMemoryHistory,
+  createWebHistory,
+  createWebHashHistory,
+} from 'vue-router'
 import routes from './routes'
+import middlewarePipeline from './middlewarePipeline'
 
 /*
  * If not building with SSR mode, you can
@@ -10,21 +16,52 @@ import routes from './routes'
  * async/await or return a Promise which resolves
  * with the Router instance.
  */
+const createHistory = process.env.SERVER
+  ? createMemoryHistory
+  : process.env.VUE_ROUTER_MODE === 'history'
+    ? createWebHistory
+    : createWebHashHistory
 
-export default defineRouter(function (/* { store, ssrContext } */) {
-  const createHistory = process.env.SERVER
-    ? createMemoryHistory
-    : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory)
+const router = createRouter({
+  scrollBehavior: (to, from, savedPosition) => {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { left: 0, top: 0 }
+    }
+  },
+  routes,
 
-  const Router = createRouter({
-    scrollBehavior: () => ({ left: 0, top: 0 }),
-    routes,
+  // Leave this as is and make changes in quasar.conf.js instead!
+  // quasar.conf.js -> build -> vueRouterMode
+  // quasar.conf.js -> build -> publicPath
+  history: createHistory(process.env.MODE === 'ssr' ? void 0 : process.env.VUE_ROUTER_BASE),
+})
+export { router }
+export default route(function (/* { ssrContext } */ { store }) {
+  router.beforeEach((to, from, next) => {
+    const middlewares = []
 
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
-    history: createHistory(process.env.VUE_ROUTER_BASE)
+    to.matched.forEach((route) => {
+      if (route.meta.middlewares) {
+        route.meta.middlewares.forEach((middleware) => middlewares.push(middleware))
+      }
+    })
+
+    if (!middlewares.length) return next()
+
+    const context = {
+      from,
+      next,
+      router,
+      to,
+      store,
+    }
+
+    return middlewares[0]({
+      ...context,
+      next: middlewarePipeline(context, middlewares, 1),
+    })
   })
-
-  return Router
+  return router
 })
