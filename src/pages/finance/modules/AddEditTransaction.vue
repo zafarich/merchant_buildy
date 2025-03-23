@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, nextTick } from 'vue-demi'
+import { computed, onMounted, ref, nextTick, watch } from 'vue-demi'
 import { useQuasar, Platform } from 'quasar'
 
 import validate from 'src/utils/validate'
@@ -30,7 +30,7 @@ const errors = ref([])
 const is_edit = computed(() => !!props.data?.id)
 const emptyData = {
   transaction_type: 'EXPENSE',
-  amount: '',
+  amount: 12000,
   category_id: '',
   comment: '',
   receipt_image: '',
@@ -235,6 +235,59 @@ function removeImage(index) {
   images.splice(index, 1)
   category.value.receipt_image = images.join(',')
 }
+
+// Summani formatlash uchun funksiya
+function formatNumber(num) {
+  if (!num) return ''
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+}
+
+// Summani tozalash (faqat raqamlarni qoldirish)
+function cleanNumber(str) {
+  return str.toString().replace(/[^\d]/g, '')
+}
+
+// Formatlangan summa
+const formattedAmount = computed({
+  get: () => formatNumber(category.value.amount),
+  set: (val) => {
+    category.value.amount = cleanNumber(val)
+  },
+})
+
+// Summani formatlash uchun watch
+watch(
+  () => category.value.amount,
+  (newVal) => {
+    if (newVal) {
+      category.value.amount = cleanNumber(newVal)
+    }
+  },
+  { immediate: true },
+)
+
+// Faqat raqamlarni qabul qilish uchun funksiya
+function onlyNumbers(evt) {
+  const keyCodes = [
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    'Backspace',
+    'Delete',
+    'ArrowLeft',
+    'ArrowRight',
+  ]
+  if (!keyCodes.includes(evt.key)) {
+    evt.preventDefault()
+  }
+}
 </script>
 <template>
   <BaseModal
@@ -286,13 +339,15 @@ function removeImage(index) {
           <q-form ref="formRef" autofocus>
             <div class="mb-4">
               <BaseInput
-                v-model="category.amount"
+                v-model="formattedAmount"
                 :rules="[validate?.required]"
                 outlined
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                @keypress="onlyNumbers"
                 :label="
-                  category.transaction_type === 'EXPENSE'
-                    ? 'Xarajat summasi (so\'mda)'
-                    : 'Kirim summasi (so\'mda)'
+                  category.transaction_type === 'EXPENSE' ? 'Xarajat summasi' : 'Kirim summasi'
                 "
                 @update:model-value="resetValidation"
                 @keyup.enter="addEditMethod"
