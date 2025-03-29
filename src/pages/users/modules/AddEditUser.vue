@@ -12,6 +12,7 @@ import BaseSelect from 'src/components/base/BaseSelect.vue'
 import ImageUpload from './ImageUpload.vue'
 
 import { useUserStore } from 'src/stores/user'
+import { TEXT_OBJ } from 'src/types/positionTypes'
 
 const $q = useQuasar()
 
@@ -31,10 +32,17 @@ const props = defineProps({
 const errors = ref([])
 const isPwd = ref(true)
 const is_edit = computed(() => !!props.data?.id)
+const user_positions = Object.keys(TEXT_OBJ).map((item) => {
+  return {
+    value: item,
+    label: TEXT_OBJ[item],
+  }
+})
 const emptyData = {
   image: '',
   first_name: '',
   last_name: '',
+  middle_name: '',
   gender: 'male',
   position: '',
   salary: {
@@ -247,10 +255,12 @@ function onlyNumbers(evt) {
             </div>
 
             <div class="mb-4">
-              <BaseInput
+              <BaseSelect
                 v-model="user.position"
+                :options="user_positions"
+                :rules="[validate?.required]"
                 outlined
-                label="Ish lavozimi"
+                label="Lavozimi"
                 @update:model-value="resetValidation"
                 @keyup.enter="addEditMethod"
               />

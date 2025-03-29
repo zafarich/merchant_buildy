@@ -313,6 +313,11 @@ export function formatTimeManage(seconds) {
 }
 export function prettify(num) {
   if (!num) return num
+
+  if (num.toString().endsWith('.00')) {
+    num = parseInt(num, 10)
+  }
+
   const regExp = /(\d{1,3}(?=(?:\d\d\d)+(?!\d)))/g
 
   const res = num.toString().replace(regExp, '$1 ')

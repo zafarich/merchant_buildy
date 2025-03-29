@@ -133,9 +133,10 @@ defineExpose({
 })
 </script>
 <template>
+  <!-- Desktop view -->
   <q-table
     v-bind="$attrs"
-    class="table no-shadow my-6"
+    class="table no-shadow my-6 gt-sm"
     separator="horizontal"
     loading-label="Yuklanmoqda..."
     :columns="columns"
@@ -166,6 +167,45 @@ defineExpose({
       </q-td>
     </template>
   </q-table>
+  <pre>{{ columns.filter((c) => c.name) }}</pre>
+  <!-- Mobile view -->
+  <div class="lt-md">
+    <div v-for="row in data" :key="row.id" class="card-item mb-4 p-4 bg-white rounded-xl">
+      <div v-for="col in columns.filter((c) => c.name)" :key="col.name" class="mb-2">
+        <div class="text-687588 text-xs mb-1">{{ col.label }}</div>
+        <div class="text-dark font-medium">
+          <component
+            v-if="bodyCells.find((cell) => cell.name === col.name)"
+            :is="bodyCells.find((cell) => cell.name === col.name).component"
+            :props-data="{
+              row,
+              value: row[col.field],
+              columnName: col.name,
+            }"
+          />
+          <template v-else>{{ row[col.field] }}</template>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-100">
+        <component
+          v-for="cell in bodyCells.filter((c) => !c.name)"
+          :key="cell.name"
+          :is="cell.component"
+          :props-data="{
+            row,
+            ...cell.props,
+          }"
+          @delete="deleteData"
+          @edit="editData"
+          @fetch="updateData"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination section -->
   <div class="flex items-center justify-between" v-if="max_page_count > 0">
     <q-pagination
       v-model="pagination.page"
@@ -345,6 +385,25 @@ defineExpose({
     &:deep(tr) {
       cursor: default !important;
     }
+  }
+}
+
+.card-item {
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+
+  .text-687588 {
+    color: #687588;
+  }
+
+  .text-dark {
+    color: #000000;
+  }
+}
+
+// Media query for mobile view
+@media screen and (max-width: 768px) {
+  .table {
+    display: none;
   }
 }
 </style>

@@ -1,7 +1,10 @@
 <script setup>
+import { Platform } from 'quasar'
+import { computed } from 'vue'
 import BaseModal from 'src/components/base/BaseModal.vue'
 
 const emit = defineEmits(['update:modelValue', 'confirm'])
+const modalPosition = computed(() => (Platform.is.mobile ? 'bottom' : 'standard'))
 
 function open() {
   emit('update:modelValue', true)
@@ -11,7 +14,13 @@ function close() {
 }
 </script>
 <template>
-  <BaseModal :model-value="modelValue" @close="close" class="delete-item-dialog">
+  <BaseModal
+    :model-value="modelValue"
+    @close="close"
+    class="delete-item-dialog"
+    persistent
+    :position="modalPosition"
+  >
     <div class="row items-center q-pb-none">
       <div class="text-bold text-2xl mb-4">O'chirish?</div>
       <button class="close-modal_btn" v-close-popup>

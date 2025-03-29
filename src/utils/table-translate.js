@@ -14,4 +14,9 @@ export const tableHeader = {
   measure_type: "O'lchami",
   calories: 'Kaloriyasi',
   title: 'Nomlanishi',
+  full_name: "To'liq ism",
+  position: 'Lavozimi',
+  Salary_type: 'Oylik turi',
+  Phone_number: 'Telefon raqam',
+  Salary_amount: 'Oylik summasi',
 }

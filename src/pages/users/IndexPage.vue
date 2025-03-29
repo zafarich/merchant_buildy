@@ -2,7 +2,8 @@
 import { nextTick, onMounted, ref } from 'vue-demi'
 import { useRouter, useRoute } from 'vue-router'
 
-import { formatPhoneNumber, isPermission } from 'src/utils/helpers'
+import { formatPhoneNumber, isPermission, prettify } from 'src/utils/helpers'
+import { TEXT_OBJ } from 'src/types/positionTypes'
 
 import TheTable from 'src/components/table/TheTable.vue'
 import TableActions from './table-cells/TableActions.vue'
@@ -22,17 +23,10 @@ const query_status = route.query?.status?.toString()
 const user_type = ref(/\b(active|block)\b/i?.test(query_status) ? query_status : 'active')
 const tableBodyCells = [
   {
-    component: FullNameWithImage,
-    name: 'fio',
-  },
-]
-
-if (isPermission(['users.update', 'users.delete'])) {
-  tableBodyCells.push({
     component: TableActions,
     name: '',
-  })
-}
+  },
+]
 
 const tableRef = ref(null)
 const addEditRoleDialog = ref(false)
@@ -61,15 +55,16 @@ function replaceNewQuery(newQuery) {
   })
 }
 const tableSettings = {
-  defaultColumnOrder: ['fio', 'Login', 'Role', 'Phone_number', 'Email', ''],
+  defaultColumnOrder: ['full_name', 'position', 'Salary_type', 'Salary_amount', 'Phone_number', ''],
   formatColumns: {
     Phone_number: (v) => formatPhoneNumber(v),
+    Salary_amount: (v) => `${prettify(v)} so'm`,
   },
   fieldFormatColumns: {
-    Login: (row) => `${row?.login || ''}`,
-    Role: (row) => `${row?.role.name}`,
-    Phone_number: (row) => `${row?.phone}`,
-    Email: (row) => `${row?.email}`,
+    position: (row) => TEXT_OBJ[row?.position],
+    Salary_type: (row) => (row.work_type === 'fixed' ? 'Oylikli' : 'Soatli'),
+    Phone_number: (row) => row.user.phone,
+    Salary_amount: (row) => (row.work_type === 'fixed' ? row?.monthly_salary : row?.hourly_rate),
   },
 }
 
@@ -114,12 +109,12 @@ function changeStatus(status) {
         </div>
       </div>
 
-      <div class="mb-8">
+      <!-- <div class="mb-8">
         <q-tabs class="base-tab" @update:model-value="changeStatus" v-model="user_type" no-caps>
           <q-tab name="active" label="Aktiv" />
           <q-tab name="block" label="Bloklangan" />
         </q-tabs>
-      </div>
+      </div> -->
       <AddEditUser
         :key="addEditRoleDialog"
         :data="editItem"
