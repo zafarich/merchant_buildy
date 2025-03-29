@@ -41,42 +41,14 @@ async function changeBlockStatus() {
 }
 </script>
 <template>
-  <div>
-    <button class="p-1 w-8 h-8 rounded-lg" :class="{ 'bg-f8f8f8': action_menu }">
-      <img src="/images/icons/dots_vertical.svg" alt="" />
+  <div class="flex gap-2">
+    <q-btn @click="emit('edit', propsData.row)" size="sm" flat dense color="primary">
+      <q-icon name="edit"></q-icon>
+    </q-btn>
 
-      <q-menu v-model="action_menu" class="not-shadow" anchor="bottom right" self="top end">
-        <div class="mt-1 shadow-actions-card py-1.5 rounded-xl bg-white">
-          <div v-if="isPermission('users.update')">
-            <button
-              @click="emit('edit', propsData.row)"
-              v-close-popup
-              class="text-left w-full py-2.5 px-4 hover:bg-f8f8f8"
-            >
-              O'zgartirish
-            </button>
-          </div>
-          <div>
-            <button
-              @click="changeBlockStatus"
-              v-close-popup
-              class="text-left w-full py-2.5 px-4 hover:bg-f8f8f8"
-            >
-              {{ propsData.row?.is_blocked ? 'Blokdan ochish' : 'Blok qilish' }}
-            </button>
-          </div>
-          <div v-if="isPermission('users.delete')">
-            <button
-              v-close-popup
-              @click="emit('delete', propsData.row.id)"
-              class="text-left w-full text-e03137 py-2.5 px-4 hover:bg-f8f8f8"
-            >
-              O'chirish
-            </button>
-          </div>
-        </div>
-      </q-menu>
-    </button>
+    <q-btn @click="emit('delete', propsData.row.id)" size="sm" flat dense color="negative">
+      <q-icon name="delete"></q-icon>
+    </q-btn>
   </div>
 </template>
 

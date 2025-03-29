@@ -45,7 +45,7 @@ async function fetchData() {
   loading.value = true
   await nextTick()
   params.value = { ...params.value, ...tableRef.value.pagination }
-  data.value = (await userStore.fetch(params.value)) || []
+  data.value = (await userStore.fetch(params.value, 'admins')) || []
   tableRef.value.rowsNumber = userStore.all_count
   tableRef.value.prepareHeaders()
   loading.value = false

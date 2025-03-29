@@ -19,13 +19,16 @@ function close() {
       </button>
     </div>
     <div>
-      <div class="text-base mb-7">Вся информация о профиле будет потеряна</div>
+      <div class="text-base mb-7">Bu barcha joydan o'chib ketadi. Qaytarish imkonsiz</div>
 
       <div class="flex items-center">
-        <button @click="close" class="px-6 h-10 font-bold rounded-xl bg-ffd023">
+        <button @click="close" class="px-6 h-10 font-bold text-white rounded-xl bg-primary">
           Bekor qilish
         </button>
-        <button @click="emit('confirm')" class="px-6 h-10 font-bold rounded-xl bg-f1f2f4 ml-3">
+        <button
+          @click="emit('confirm')"
+          class="px-6 h-10 text-white font-bold rounded-xl bg-negative ml-3"
+        >
           O'chirish
         </button>
       </div>

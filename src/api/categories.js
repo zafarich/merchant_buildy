@@ -1,15 +1,18 @@
 import { api } from 'src/boot/axios'
-const url = 'api/admin/users'
+const url = 'api/v1/transaction-categories'
 
 export async function fetch(params) {
-  const { data } = await api(url, { params })
-  return data
+  console.log('TEEEST', params)
+
+  const res = await api(url, { params })
+  return res?.data
 }
 
 export async function create(payload) {
   const res = await api.post(url, payload, {
     pass: true,
   })
+
   return res
 }
 

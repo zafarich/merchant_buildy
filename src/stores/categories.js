@@ -3,17 +3,16 @@ import { ref } from 'vue'
 import * as api from 'src/api/categories'
 
 export const useCategoriesStore = defineStore('categories', () => {
-  const categories = ref([])
-
-  const fetchCategories = async () => {
-    const response = await api.get('/categories')
-    categories.value = response.data
+  const all_count = ref(0)
+  const fetch = async (params) => {
+    const response = await api.fetch(params)
+    all_count.value = response?.pagination?.total
+    return response.data
   }
 
-  const createCategory = async (data) => {
-    const response = await api.post('/categories', data)
-    categories.value.push(response.data)
-    return response.data
+  const create = async (data) => {
+    const response = await api.create(data)
+    return response
   }
 
   const updateCategory = async (id, data) => {
@@ -25,16 +24,16 @@ export const useCategoriesStore = defineStore('categories', () => {
     return response.data
   }
 
-  const deleteCategory = async (id) => {
-    await api.delete(`/categories/${id}`)
-    categories.value = categories.value.filter((c) => c.id !== id)
+  async function deleteById(id) {
+    const res = await api.deleteById(id)
+    return res
   }
 
   return {
-    categories,
-    fetchCategories,
-    createCategory,
+    fetch,
+    create,
     updateCategory,
-    deleteCategory,
+    deleteById,
+    all_count,
   }
 })

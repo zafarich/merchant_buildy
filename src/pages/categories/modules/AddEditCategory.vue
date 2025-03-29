@@ -9,11 +9,11 @@ import BaseInput from 'src/components/base/BaseInput.vue'
 import BaseModal from 'src/components/base/BaseModal.vue'
 import BaseSelect from 'src/components/base/BaseSelect.vue'
 
-import { useUserStore } from 'src/stores/user'
+import { useCategoriesStore } from 'src/stores/categories'
 
 const $q = useQuasar()
 
-const userStore = useUserStore()
+const categoriesStore = useCategoriesStore()
 
 const emit = defineEmits(['update:modelValue', 'change'])
 const props = defineProps({
@@ -56,7 +56,7 @@ function insteadEditData() {
   if (typeof data !== 'object') return
 
   category.value.name = data.name
-  category.value.type = data.type
+  category.value.type = typesList?.value.find((i) => i.value === data.type)
 }
 async function addEditMethod() {
   resetValidation()
@@ -64,16 +64,20 @@ async function addEditMethod() {
   errors.value = []
   const hasError = !(await formRef.value.validate())
   if (hasError) return resetValidation(3000)
+  console.log('111')
 
   const payload = {
     ...category.value,
+    type: category.value?.type?.value,
   }
 
   $q.loading.show()
+  console.log('222')
+
   try {
     const res = is_edit.value
-      ? await userStore.update(props.data?.id, payload)
-      : await userStore.create(payload)
+      ? await categoriesStore.update(props.data?.id, payload)
+      : await categoriesStore.create(payload)
 
     if (res.success) {
       emit('change')

@@ -6,7 +6,7 @@ export const useUserStore = defineStore('user', () => {
   const all_count = ref(0)
   async function fetch(params, user_type) {
     const res = await api.fetch(params, user_type)
-    all_count.value = res?.meta?.total
+    all_count.value = res?.pagination?.total
     return res?.data
   }
   async function create(payload, user_type) {

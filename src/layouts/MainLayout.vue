@@ -51,40 +51,10 @@
             <q-icon class="mr-3" size="22px" name="o_category" />
             <q-item-section>Kategoriyalar</q-item-section>
           </q-item>
-
-          <q-expansion-item class="menu-list-item" icon="o_people" label="Xodimlar">
-            <q-list>
-              <q-item
-                class="flex items-center"
-                clickable
-                v-ripple
-                :to="{ name: 'admins', query: { role: 'admin' } }"
-                exact
-              >
-                <q-item-section>Adminlar</q-item-section>
-              </q-item>
-
-              <q-item
-                class="flex items-center"
-                clickable
-                v-ripple
-                :to="{ name: 'managers', query: { role: 'manager' } }"
-                exact
-              >
-                <q-item-section>Ish boshqaruvchilar</q-item-section>
-              </q-item>
-
-              <q-item
-                class="flex items-center"
-                clickable
-                v-ripple
-                :to="{ name: 'employees', query: { role: 'worker' } }"
-                exact
-              >
-                <q-item-section>Ishchilar</q-item-section>
-              </q-item>
-            </q-list>
-          </q-expansion-item>
+          <q-item class="flex items-center" clickable v-ripple :to="{ name: 'employees' }" exact>
+            <q-icon class="mr-3" size="22px" name="o_people" />
+            <q-item-section>Xodimlar</q-item-section>
+          </q-item>
 
           <q-item class="flex items-center" clickable v-ripple :to="{ name: 'contracts' }" exact>
             <q-icon class="mr-3" size="22px" name="o_description" />

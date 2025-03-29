@@ -7,40 +7,43 @@ import { formatPhoneNumber, isPermission } from 'src/utils/helpers'
 import TheTable from 'src/components/table/TheTable.vue'
 import TableActions from './table-cells/TableActions.vue'
 import AddEditCategory from './modules/AddEditCategory.vue'
+import TypeChip from './table-cells/TypeChip.vue'
 
-import { useUserStore } from 'src/stores/user'
+import { useCategoriesStore } from 'src/stores/categories'
 
 const route = useRoute()
 const router = useRouter()
 
-const userStore = useUserStore()
+const categoriesStore = useCategoriesStore()
 
 const loading = ref(false)
 const data = ref([])
 const query_status = route.query?.status?.toString()
-const user_type = ref(/\b(EXPENSE|INCOME)\b/i?.test(query_status) ? query_status : 'EXPENSE')
-const tableBodyCells = []
-
-if (isPermission(['users.update', 'users.delete'])) {
-  tableBodyCells.push({
+const category_type = ref(/\b(EXPENSE|INCOME)\b/i?.test(query_status) ? query_status : 'EXPENSE')
+const tableBodyCells = [
+  {
+    component: TypeChip,
+    name: 'type',
+  },
+  {
     component: TableActions,
     name: '',
-  })
-}
+  },
+]
 
 const tableRef = ref(null)
 const addEditRoleDialog = ref(false)
 const editItem = ref({})
 const params = ref({
-  status: user_type.value,
+  status: category_type.value,
 })
 
 async function fetchData() {
   loading.value = true
   await nextTick()
   params.value = { ...params.value, ...tableRef.value.pagination }
-  data.value = (await userStore.fetch(params.value)) || []
-  tableRef.value.rowsNumber = userStore.all_count
+  data.value = (await categoriesStore.fetch(params.value)) || []
+  tableRef.value.rowsNumber = categoriesStore.all_count
   tableRef.value.prepareHeaders()
   loading.value = false
 }
@@ -55,15 +58,9 @@ function replaceNewQuery(newQuery) {
   })
 }
 const tableSettings = {
-  defaultColumnOrder: ['fio', 'Login', 'Role', 'Phone_number', 'Email', ''],
+  defaultColumnOrder: ['name', 'type', ''],
   formatColumns: {
-    Phone_number: (v) => formatPhoneNumber(v),
-  },
-  fieldFormatColumns: {
-    Login: (row) => `${row?.login || ''}`,
-    Role: (row) => `${row?.role.name}`,
-    Phone_number: (row) => `${row?.phone}`,
-    Email: (row) => `${row?.email}`,
+    type: (v) => (v === 'EXPENSE' ? 'Xarajat' : 'Kirim'),
   },
 }
 
@@ -78,7 +75,7 @@ function resetFilterAndFetch() {
 
 function resetFilter() {
   tableRef.value.resetPagination()
-  user_type.value = 'active'
+  category_type.value = 'active'
 }
 function roleAddedOrChanged() {
   addEditRoleDialog.value = false
@@ -108,12 +105,12 @@ function changeStatus(status) {
         </div>
       </div>
 
-      <div class="mb-8">
-        <q-tabs class="base-tab" @update:model-value="changeStatus" v-model="user_type" no-caps>
+      <!-- <div class="mb-8">
+        <q-tabs class="base-tab" @update:model-value="changeStatus" v-model="category_type" no-caps>
           <q-tab name="EXPENSE" label="Xarajat" />
           <q-tab name="INCOME" label="Kirim" />
         </q-tabs>
-      </div>
+      </div> -->
       <AddEditCategory
         :key="addEditRoleDialog"
         :data="editItem"
@@ -127,7 +124,7 @@ function changeStatus(status) {
         :settings="tableSettings"
         :tableBodyCells="tableBodyCells"
         :data="data"
-        :delete-fn="userStore?.deleteById"
+        :delete-fn="categoriesStore?.deleteById"
         @fetch="request"
         @edit="editData"
         @reset-filter="resetFilter"

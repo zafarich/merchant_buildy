@@ -5,6 +5,7 @@ module.exports = {
     extend: {
       colors: {
         primary: '#5671F9',
+        f1f2f4: '#f1f2f4',
       },
       borderRadius: {
         10: '10px',
