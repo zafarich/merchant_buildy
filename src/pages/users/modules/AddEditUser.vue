@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue-demi'
-import { useQuasar } from 'quasar'
+import { useQuasar, Platform } from 'quasar'
 
 import validate from 'src/utils/validate'
 import { formatOnlyNumber, getServerError, removePhonePrefix, sleep } from 'src/utils/helpers'
@@ -25,10 +25,11 @@ const props = defineProps({
     default: false,
   },
   data: {
-    type: Object,
-    default: () => {},
+    default: null,
   },
 })
+// Modal pozitsiyasini aniqlash uchun computed property
+const modalPosition = computed(() => (Platform.is.mobile ? 'bottom' : 'standard'))
 const errors = ref([])
 const isPwd = ref(true)
 const is_edit = computed(() => !!props.data?.id)
@@ -57,24 +58,6 @@ const emptyData = {
 const user = ref({
   ...emptyData,
 })
-const rolesList = ref([
-  {
-    value: 'admin',
-    label: 'Admin',
-  },
-  {
-    value: 'manager',
-    label: 'Manager(Prorab)',
-  },
-  {
-    value: 'planner',
-    label: 'Planirovshik',
-  },
-  {
-    value: 'employee',
-    label: 'Ishchi',
-  },
-])
 
 const workTypes = ref([
   {
@@ -110,18 +93,28 @@ const formattedAmount = computed({
 })
 
 function insteadEditData() {
-  const data = props.data
-  if (typeof data !== 'object') return
+  const data = props?.data
+  console.log('data', data)
+
+  if (data === null) return
+
+  let amount = data?.work_type === 'fixed' ? data?.monthly_salary : data?.hourly_rate
+  console.log('amount', data?.work_type)
+
+  if (amount?.toString()?.endsWith('.00')) {
+    amount = parseInt(amount, 10)
+  }
 
   user.value.image = data.image
   user.value.first_name = data.first_name
   user.value.last_name = data.last_name
-  user.value.surname = data.surname
-  user.value.role = data.role
-  user.value.login = data.login
-  user.value.email = data.email
-  user.value.guid_tm = data.guid_tm
-  user.value.phone = removePhonePrefix(data.phone)
+  user.value.middle_name = data.middle_name
+  user.value.gender = data.gender
+  user.value.position = user_positions.find((i) => i.value === data?.position)
+  user.value.salary.type = workTypes.value.find((i) => i.value === data?.work_type)
+  user.value.salary.amount = amount
+  user.value.phone = removePhonePrefix(data.user?.phone)
+  user.value.status = data?.status
   if (is_edit.value) {
     delete user.value.password
   }
@@ -144,17 +137,21 @@ async function addEditMethod() {
   }
   fd.append('first_name', payload.first_name)
   fd.append('last_name', payload.last_name)
-  fd.append('surname', payload.surname)
-  fd.append('role_id', payload.role_id)
-  fd.append('login', payload.login)
+  fd.append('last_name', payload.last_name)
+  fd.append('middle_name', payload.middle_name)
+  fd.append('gender', payload.gender)
+  fd.append('position', payload.position?.value)
+  fd.append('work_type', payload.salary?.type?.value)
+  fd.append('status', payload?.status)
+
+  const salary_amount_key =
+    payload.salary?.type?.value === 'fixed' ? 'monthly_salary' : 'hourly_rate'
+
+  fd.append(salary_amount_key, payload.salary?.amount)
   if (!is_edit.value) {
     fd.append('password', payload.password)
   }
-  if (is_edit.value) {
-    fd.append('_method', 'put')
-  }
-  fd.append('email', payload.email)
-  fd.append('guid_tm', payload.guid_tm)
+
   fd.append('phone', PHONE_PREFIX + payload.phone)
   delete payload.role
 
@@ -211,7 +208,12 @@ function onlyNumbers(evt) {
 }
 </script>
 <template>
-  <BaseModal :model-value="modelValue" @close="close" class="user-add-dialog">
+  <BaseModal
+    :model-value="modelValue"
+    @close="close"
+    class="user-add-dialog"
+    :position="modalPosition"
+  >
     <div>
       <div class="row items-center q-pb-none">
         <div class="title-modal">
@@ -246,7 +248,16 @@ function onlyNumbers(evt) {
                 @keyup.enter="addEditMethod"
               />
             </div>
-
+            <div class="mb-4">
+              <BaseInput
+                v-model="user.middle_name"
+                :rules="[validate?.required, () => errors?.middle_name?.[0] || true]"
+                outlined
+                label="Otasining ismi"
+                @update:model-value="resetValidation"
+                @keyup.enter="addEditMethod"
+              />
+            </div>
             <div class="mb-4">
               <div class="flex items-center gap-4">
                 <q-radio v-model="user.gender" val="male" label="Erkak" class="base-radio" />
@@ -288,7 +299,7 @@ function onlyNumbers(evt) {
                   pattern="[0-9]*"
                   @keypress="onlyNumbers"
                   :label="
-                    user.salary.type.value === 'hourly' ? 'Soatiga qancha(so\'m)' : 'Oylik summa'
+                    user.salary.type?.value === 'hourly' ? 'Soatiga qancha(so\'m)' : 'Oylik summa'
                   "
                   @update:model-value="resetValidation"
                   @keyup.enter="addEditMethod"

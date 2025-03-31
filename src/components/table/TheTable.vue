@@ -131,6 +131,15 @@ defineExpose({
     pagination.value = deepCopy(defaultPagination)
   },
 })
+
+const mobileColumns = computed(() => {
+  if (!props.settings?.mobileOrder) return columns.value
+  return columns.value.filter((col) => props.settings.mobileOrder.includes(col.name))
+})
+
+const getMobileLabel = (colName) => {
+  return tableHeader?.[colName]
+}
 </script>
 <template>
   <!-- Desktop view -->
@@ -167,12 +176,12 @@ defineExpose({
       </q-td>
     </template>
   </q-table>
-  <pre>{{ columns.filter((c) => c.name) }}</pre>
+  <!-- <pre>{{ columns.filter((c) => c.name) }}</pre> -->
   <!-- Mobile view -->
   <div class="lt-md">
     <div v-for="row in data" :key="row.id" class="card-item mb-4 p-4 bg-white rounded-xl">
-      <div v-for="col in columns.filter((c) => c.name)" :key="col.name" class="mb-2">
-        <div class="text-687588 text-xs mb-1">{{ col.label }}</div>
+      <div v-for="col in mobileColumns" :key="col.name" class="mb-2">
+        <div class="text-687588 text-xs mb-1">{{ getMobileLabel(col.name) }}</div>
         <div class="text-dark font-medium">
           <component
             v-if="bodyCells.find((cell) => cell.name === col.name)"
@@ -183,7 +192,15 @@ defineExpose({
               columnName: col.name,
             }"
           />
-          <template v-else>{{ row[col.field] }}</template>
+          <template v-else>
+            {{
+              col.format
+                ? col.format(typeof col.field === 'function' ? col.field(row) : row[col.field])
+                : typeof col.field === 'function'
+                  ? col.field(row)
+                  : row[col.field]
+            }}
+          </template>
         </div>
       </div>
 
@@ -390,6 +407,7 @@ defineExpose({
 
 .card-item {
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
 
   .text-687588 {
     color: #687588;
@@ -397,6 +415,16 @@ defineExpose({
 
   .text-dark {
     color: #000000;
+  }
+
+  // Mobile ko'rinish uchun qo'shimcha stillar
+  @media screen and (max-width: 768px) {
+    border-radius: 12px;
+
+    .mb-2:not(:last-child) {
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
   }
 }
 

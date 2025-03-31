@@ -23,6 +23,10 @@ const query_status = route.query?.status?.toString()
 const user_type = ref(/\b(active|block)\b/i?.test(query_status) ? query_status : 'active')
 const tableBodyCells = [
   {
+    component: FullNameWithImage,
+    name: 'full_name',
+  },
+  {
     component: TableActions,
     name: '',
   },
@@ -30,7 +34,7 @@ const tableBodyCells = [
 
 const tableRef = ref(null)
 const addEditRoleDialog = ref(false)
-const editItem = ref({})
+const editItem = ref(null)
 const params = ref({
   status: user_type.value,
 })
@@ -55,21 +59,32 @@ function replaceNewQuery(newQuery) {
   })
 }
 const tableSettings = {
-  defaultColumnOrder: ['full_name', 'position', 'Salary_type', 'Salary_amount', 'Phone_number', ''],
+  defaultColumnOrder: [
+    'full_name',
+    'position',
+    'balance',
+    'Salary_type',
+    'Salary_amount',
+    'Phone_number',
+    '',
+  ],
   formatColumns: {
     Phone_number: (v) => formatPhoneNumber(v),
     Salary_amount: (v) => `${prettify(v)} so'm`,
+    balance: (v) => `${prettify(v)} so'm`,
   },
   fieldFormatColumns: {
+    full_name: (row) => row,
     position: (row) => TEXT_OBJ[row?.position],
     Salary_type: (row) => (row.work_type === 'fixed' ? 'Oylikli' : 'Soatli'),
     Phone_number: (row) => row.user.phone,
     Salary_amount: (row) => (row.work_type === 'fixed' ? row?.monthly_salary : row?.hourly_rate),
   },
+  mobileOrder: ['full_name', 'balance', 'position', 'Salary_type', 'Salary_amount', 'Phone_number'],
 }
 
 function addUserBtn() {
-  editItem.value = {}
+  editItem.value = null
   addEditRoleDialog.value = true
 }
 function resetFilterAndFetch() {

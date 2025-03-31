@@ -19,4 +19,5 @@ export const tableHeader = {
   Salary_type: 'Oylik turi',
   Phone_number: 'Telefon raqam',
   Salary_amount: 'Oylik summasi',
+  balance: 'Balans',
 }
